@@ -97,7 +97,8 @@ public class CharacterController {
         return ResponseEntity.status(200).body(characterService.getHeaviestCharacterByEachSpecie());
     }
 
-    public ResponseEntity<Character> getHeaviestCharacterOnPlanet(String planetName) {
+    @GetMapping("/heaviest-on-planet/{planetName}")
+    public ResponseEntity<Character> getHeaviestCharacterOnPlanet(@PathVariable String planetName) {
         return ResponseEntity.status(200).body(characterService.getHeaviestCharacterOnPlanet(planetName));
     }
 
