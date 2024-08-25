@@ -8,6 +8,7 @@ import com.example.starwarsapi.persistence.repository.CharacterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,14 +74,15 @@ public class CharacterServiceImpl implements CharacterService {
         return characterRepository.createCharacter(character);
     }
 
-    // TODO: Implement the method
     // Live coding
     // Show not found
     public Character getCharacterByName(String name) {
-        return null;
+         return characterRepository.getAllCharacters()
+                .stream()
+                .filter(character -> character.getName().equals(name))
+                .findFirst()
+                .orElse(null);
     }
-
-    // TODO: Task 1. Implement the method
 
     /**
      * Retrieves the character by ID and checks if it belongs to the Wookiee species
@@ -90,12 +92,12 @@ public class CharacterServiceImpl implements CharacterService {
      * @return true if the character meets the condition, false otherwise.
      */
     public Boolean isCharacterOldWookie(Integer id) {
-        return null;
+        return characterRepository.getCharacterById(id)
+                .map(c -> c.getSpecie().getName().equals("Wookiee") && c.getAge() >= 60)
+                .orElse(false);
     }
 
-    // TODO: Task 2. Implement the method
-
-    /*ResponseEntity*
+    /**ResponseEntity*
      * Retrieves the character by ID and checks if it is taller than the average
      * height of the species it belongs to.
      *
@@ -103,10 +105,10 @@ public class CharacterServiceImpl implements CharacterService {
      * @return true if the character is taller than the average height of its species, false otherwise.
      */
     public Boolean isCharacterTallerThanAverageHeightOfSpecie(Integer id) {
-        return false;
+        return characterRepository.getCharacterById(id)
+                .map(c -> c.getHeight() >= c.getSpecie().getAverageHeight())
+                .orElse(false);
     }
-
-    // TODO: Task 3. Implement the method
 
     /**
      * Calculates the average weight based on the weight of all characters.
@@ -114,10 +116,12 @@ public class CharacterServiceImpl implements CharacterService {
      * @return The average weight of all characters.
      */
     public Double getAverageWeightOfAllCharacters() {
-        return 0.0;
+        return characterRepository.getAllCharacters()
+                .stream()
+                .mapToDouble(Character::getWeight)
+                .average()
+                .orElse(0.0);
     }
-
-    // TODO: Task 4. Find and fix the bug
 
     /**
      * Retrieves the heaviest character of each species.
@@ -131,7 +135,7 @@ public class CharacterServiceImpl implements CharacterService {
         for (Character character : characters) {
             Specie specie = character.getSpecie();
             String specieName = specie.getName();
-            if (heaviestCharacterBySpecie.containsKey(specieName)) {
+            if (!heaviestCharacterBySpecie.containsKey(specieName)) {
                 heaviestCharacterBySpecie.put(specieName, character);
             } else {
                 Character currentHeaviest = heaviestCharacterBySpecie.get(specieName);
@@ -146,9 +150,6 @@ public class CharacterServiceImpl implements CharacterService {
                 .toList();
     }
 
-    // TODO: Task 6. Implement the method. It should return the heaviest character on the specified planet. If there is no such planet, it should return null.
-    // TODO: Additionally, you need to create an endpoint (a method in the controller) that will invoke this method and return the proper status code based on the return value of the method.
-
     /**
      * Retrieves the heaviest character on a specified planet.
      *
@@ -156,6 +157,9 @@ public class CharacterServiceImpl implements CharacterService {
      * @return The heaviest Character on the specified planet, or null if not found.
      */
     public Character getHeaviestCharacterOnPlanet(String planetName) {
-        return null;
+        return characterRepository.getAllCharacters()
+                .stream()
+                .filter(character -> character.getPlanet().getName().equals(planetName))
+                .max(Comparator.comparingInt(c -> c.getWeight())).orElse(null);
     }
 }
